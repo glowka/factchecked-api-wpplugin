@@ -1,0 +1,5 @@
+{
+    "require": {
+        "neomerx/json-api": "0.8.*"
+    }
+}
