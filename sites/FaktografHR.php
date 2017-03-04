@@ -1,6 +1,6 @@
 <?php
 
-class Faktograf implements iSite {
+class Faktograf extends StatementPerPostSite {
     public function get_statement_query() {
         return array(
             'category_name' => 'ocjena-tocnosti',
@@ -10,7 +10,8 @@ class Faktograf implements iSite {
         );
     }
 
-    public function get_statement($post_id) {
+    public function post_to_statement() {
+        $post_id = get_the_ID();
         $rating = get_post_meta($post_id, 'tocnost', true);
 
         $st = new Statement();

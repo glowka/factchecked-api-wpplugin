@@ -11,4 +11,6 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Implementation of to-be-standardized API for fact-checked statements. Publish data that can be used for example by browser plugins highlighting fact-checked statements. See http://bit.ly/factual-chrome for working example.
 
 == Installation ==
-Install it and implement iSite interface with custom code that maps your WP data to the standard data model (/schemas). See /sites for examples.
+1) Download and activate plugin
+2) Run `composer install` in the plugin's directory
+3) Implement iSite interface with custom code that maps your WP data to the standard data model (/schemas). See /sites for examples.

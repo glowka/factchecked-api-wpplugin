@@ -20,6 +20,7 @@ foreach (glob(__DIR__ . '/schemas/*.php') as $file) {
 }
 
 require 'iSite.php';
+require 'StatementPerPostSite.php';
 foreach (glob(__DIR__ . '/sites/*.php') as $file) {
     require $file;
 }
@@ -45,6 +46,16 @@ foreach (glob(__DIR__ . '/sites/*.php') as $file) {
  */
 
 // TODO warning jak wp_router nie wlaczony
+function factchecked_api_check_for_router() {
+    if (is_admin() && current_user_can( 'activate_plugins' ) && !is_plugin_active('wp-router/wp-router.php')) {
+        ?>
+    <div class="notice notice-error">
+        <p>FactChecked API cannot work with <a href="/wp-admin/plugin-install.php?tab=search&s=wp+router">WP-Router plugin</a>!</p>
+    </div>
+    <?php
+    }
+}
+add_action('admin_notices', 'factchecked_api_check_for_router');
 
 add_action( 'wp_router_init', 'API::init');
 
@@ -58,7 +69,8 @@ add_action( 'wp_router_init', 'API::init');
 
 class API {
     const API_URL = 'api/v1';
-    const SITE_CLASS = 'Faktograf';
+    const SITE_CLASS = 'Demagog';
+    // TODO settings https://codex.wordpress.org/Function_Reference/register_setting
 
     static function output($data, $http_status = 200) {
         $http_status = apply_filters('json_api_http_status', $http_status);
@@ -95,7 +107,7 @@ class API {
             'template' => FALSE
         ));
         $router->add_route( 'statement', array(
-            'path' => '^' . API::API_URL . '/statements/(\d+)$',
+            'path' => '^' . API::API_URL . '/statements/(.+)$',
             'query_vars' => array( 'id' => 1),
             'page_callback' => array(get_class(), 'statement'),
             'page_arguments' => array('id'),
@@ -116,19 +128,7 @@ class API {
         $siteclass = API::SITE_CLASS;
         $site = new $siteclass();
 
-        $params = $site->get_statement_query();
-        $params['p'] = $id;
-
-        $the_query = new WP_Query($params);
-
-        if (!$the_query->have_posts()) {
-            // TODO array('errors' => array("Fact-check with id=$id doesn't exist."))
-            return API::output(null, 404);
-        }
-
-        $the_query->the_post();
-
-        $st = $site->get_statement(get_the_ID());
+        $st = $site->get_statement($id);
 
         API::output($st);
     }
@@ -137,24 +137,7 @@ class API {
         $siteclass = API::SITE_CLASS;
         $site = new $siteclass();
 
-        $params = $site->get_statement_query();
-        $params['posts_per_page'] = -1; // all posts
-        // offset
-        $the_query = new WP_Query($params);
-
-        $statements = array();
-        while ($the_query->have_posts()) {
-            global $post;
-            $the_query->the_post();
-
-            $st = $site->get_statement(get_the_ID());;
-            array_push($statements, $st);
-        }
-
-        wp_reset_postdata();
-
-        // $q->found_posts will give you 20
-        // $q->max_num_pages will give you 4
+        $statements = $site->get_statements();
 
 //       $links = [ // TODO paging
 //            Link::FIRST => new Link('/authors?page=1'),

@@ -1,7 +1,9 @@
 <?php
 
 interface iSite {
-    public function get_statement($post_id);
+    public function get_sources_list();
 
-    public function get_statement_query();
+    public function get_statement($id);
+
+    public function get_statements();
 }
