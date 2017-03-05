@@ -102,7 +102,7 @@ class API {
             'path' => '^' . API::API_URL . '/statements$',
             'query_vars' => array( ),
             'page_callback' => array(get_class(), 'statements'),
-            'page_arguments' => array( ),
+            'page_arguments' => array(),
             'access_callback' => true,
             'template' => FALSE
         ));
@@ -137,7 +137,7 @@ class API {
         $siteclass = API::SITE_CLASS;
         $site = new $siteclass();
 
-        $statements = $site->get_statements();
+        $statements = $site->get_statements($_GET['uri']);
 
 //       $links = [ // TODO paging
 //            Link::FIRST => new Link('/authors?page=1'),

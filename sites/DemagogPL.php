@@ -10,7 +10,7 @@ class Demagog implements iSite {
 
     public function get_statement($statement_id) {
         if (!preg_match('/^(\d+)_(\d+)$/', $statement_id, $post_and_statement_id)) {
-            throw Exception("not found"); // TODO
+            throw new Exception("not found"); // TODO
         }
 
         global $wpdb;
@@ -80,7 +80,7 @@ class Demagog implements iSite {
         }
     }
 
-    public function get_statements() {
+    public function get_statements($source_url) {
         global $wpdb;
 
 //        +---------+---------+-------------------------------------------------------+---------------------+
@@ -100,29 +100,69 @@ class Demagog implements iSite {
 //        +---------+---------+-------------------------------------------------------+---------------------+
         // select meta_id, post_id, meta_key, LEFT(meta_value,10)  from wp_postmeta where meta_key LIKE 'politic\_statement%' and post_id = 3826;
 
-        $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where LEFT(meta_key, 18) = "politic_statement_" and RIGHT(meta_key, 18) = "_statement_content" LIMIT 10';
-        // TODO range of $sql = 'select distinct post_id, meta_value as statement_count FROM '. $wpdb->prefix .'postmeta where meta_key = "politic_statement" LIMIT 10';
-        // but it's going to be hard to paginate
+        if ($source_url) {
+          $escaped = esc_sql($source_url);
 
-        // TODO actually it should only be those containing links..
-          // get all IDs and then filter by those having ids either here or there
-          // it would be eaasier to have separate tables and update hooks
+          $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where RIGHT(meta_key, 20) = "_statement-fc-source" ' .
+            ' AND meta_value = "'. $escaped .'"';
 
-        $wypowiedzi = $wpdb->get_results($sql);
+          $wypowiedzi = $wpdb->get_results($sql);
 
-        $statements = array();
-        foreach($wypowiedzi as $w) {
+          $statement_ids = array();
+          foreach($wypowiedzi as $w) {
+              $meta_in_post = explode('_', $w->meta_key);
+              $statement_ids[$w->post_id . '_' . $meta_in_post[2]] = true;
+          }
 
-            $st = new Statement();
+          // get wypowiedzi with maain source set
+          $sql = 'select post_id FROM '. $wpdb->prefix .'postmeta where meta_key = "main-fc-source" and meta_value = "'. $escaped .'"';
+          $post_ids = $wpdb->get_col($sql);
 
-            $meta_in_post = explode('_', $w->meta_key);
-            $st->id = $w->post_id . '_' . $meta_in_post[2];
-            $st->factchecker_uri = get_site_url() . '?p=' . $w->post_id;
+          $sql = 'select post_id, meta_value FROM '. $wpdb->prefix .'postmeta where meta_key = "politic_statement" and post_id IN ('. join(',', $post_ids) .')';
+          $wypowiedzi = $wpdb->get_results($sql);
 
-            array_push($statements, $st);
+          foreach($wypowiedzi as $w) {
+              for ($i = 0; $i < $w->meta_value; $i++) {
+                  $statement_ids[$w->post_id . '_' . $i] = true;
+              }
+          }
+
+          print_r($statement_ids);
+
+          $statements = array();
+          foreach(array_keys($statement_ids) as $id) {
+              array_push($statements, $this->get_statement($id));
+          }
+
+          return $statements;
+
+        } else {
+          // all statements
+          $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where LEFT(meta_key, 18) = "politic_statement_" and RIGHT(meta_key, 18) = "_statement_content" LIMIT 10';
+
+          // TODO range of $sql = 'select distinct post_id, meta_value as statement_count FROM '. $wpdb->prefix .'postmeta where meta_key = "politic_statement" LIMIT 10';
+          // but it's going to be hard to paginate
+
+          // TODO actually it should only be those containing links..
+            // get all IDs and then filter by those having ids either here or there
+            // it would be eaasier to have separate tables and update hooks
+
+          $wypowiedzi = $wpdb->get_results($sql);
+
+          $statements = array();
+          foreach($wypowiedzi as $w) {
+
+              $st = new Statement();
+
+              $meta_in_post = explode('_', $w->meta_key);
+              $st->id = $w->post_id . '_' . $meta_in_post[2];
+              $st->factchecker_uri = get_site_url() . '?p=' . $w->post_id;
+
+              array_push($statements, $st);
+          }
+
+          return $statements;
         }
-
-        return $statements;
     }
 
     public function get_sources_list() {

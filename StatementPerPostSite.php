@@ -22,7 +22,9 @@ abstract class StatementPerPostSite implements iSite {
         return $site->post_to_statement();
     }
 
-    public function get_statements() {
+    public function get_statements($source) {
+        // todo implement source
+
         $meta_query_args = array(
             'relation' => 'OR', // Optional, defaults to "AND"
             array(
