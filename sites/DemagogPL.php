@@ -127,8 +127,6 @@ class Demagog implements iSite {
               }
           }
 
-          print_r($statement_ids);
-
           $statements = array();
           foreach(array_keys($statement_ids) as $id) {
               array_push($statements, $this->get_statement($id));
