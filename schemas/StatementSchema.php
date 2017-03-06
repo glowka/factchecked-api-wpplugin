@@ -24,6 +24,7 @@ class StatementSchema extends SchemaProvider
             'text' => $statement->text,
             'person_name'  => $statement->person_name,
             'rating'  => $statement->rating,
+            'rating_text' => $statement->rating_text,
             'rating_img' => $statement->rating_img,
             'explanation'  => $statement->explanation,
             'factchecker_uri'  => $statement->factchecker_uri,

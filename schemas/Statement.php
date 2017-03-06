@@ -12,6 +12,7 @@ class Statement
     public $text;
     public $person_name;
     public $rating;
+    public $rating_text;
     public $rating_img;
     public $explanation;
     public $factchecker_uri;

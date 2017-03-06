@@ -44,6 +44,13 @@ class Demagog implements iSite {
             } else if (endsWith($d->meta_key, 'statement_rank')) {
                 $st->rating = $d->meta_value;
                 $st->rating_img = $this->get_rating_img($st->rating);
+                $texts = array(
+                  'true' => 'Prawda',
+                  'false' => 'Fałsz',
+                  'lie' => 'Manipulacja',
+                  'unknown' => 'Nieweryfikowalne'
+                );
+                $st->rating_text = $texts[$st->rating];
 
             } else if (endsWith($d->meta_key, 'statement_rank_desc')) {
                 $st->explanation = $d->meta_value;
