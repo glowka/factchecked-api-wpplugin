@@ -13,14 +13,15 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
 
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 foreach (glob(__DIR__ . '/schemas/*.php') as $file) {
     require $file;
 }
 
-require 'iSite.php';
-require 'StatementPerPostSite.php';
+require __DIR__ . '/tools.php';
+require __DIR__ . '/iSite.php';
+require __DIR__ . '/StatementPerPostSite.php';
 foreach (glob(__DIR__ . '/sites/*.php') as $file) {
     require $file;
 }
