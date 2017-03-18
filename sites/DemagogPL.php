@@ -41,6 +41,9 @@ class Demagog implements iSite {
             if (endsWith($d->meta_key, 'statement_content')) {
                 $st->text = wp_strip_all_tags($d->meta_value);
 
+                // delete [ ] brackets containing context provided by editorial team
+                $st->text = trim(preg_replace('/\s*\[[^\]]+\](\s*)/', '$1', $st->text));
+
             } else if (endsWith($d->meta_key, 'statement_rank')) {
                 $st->rating = $d->meta_value;
                 $st->rating_img = $this->get_rating_img($st->rating);
