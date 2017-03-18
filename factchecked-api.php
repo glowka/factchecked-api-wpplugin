@@ -85,7 +85,7 @@ class API {
         $encoder = Encoder::instance([
             'SourceList' => '\SourceListSchema',
             'Statement' => '\StatementSchema',
-        ], new EncoderOptions(JSON_PRETTY_PRINT, get_site_url(null, API::API_URL)));
+        ], new EncoderOptions(JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES, get_site_url(null, API::API_URL)));
 
         if ($data !== null) {
             echo $encoder->encodeData($data);

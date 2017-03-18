@@ -173,7 +173,8 @@ class Demagog implements iSite {
     public function get_sources_list() {
         global $wpdb;
         // meta_key ends in fc-source for sources' urls
-        $sources = $wpdb->get_col( 'SELECT DISTINCT meta_value FROM '. $wpdb->prefix .'postmeta where RIGHT(meta_key,9) = "fc-source" and not LEFT(meta_key,1) = "_"');
+        $sources = $wpdb->get_col( 'SELECT DISTINCT meta_value FROM '. $wpdb->prefix .
+          'postmeta where RIGHT(meta_key,9) = "fc-source" and not LEFT(meta_key,1) = "_" AND meta_value != "";');
 
         return new SourceList($sources);
     }
