@@ -1,6 +1,6 @@
 vendor/
 composer
 
-wp/
-db_data/
+docker/wp/
+docker/db_data/
 .idea/
