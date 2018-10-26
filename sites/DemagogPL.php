@@ -1,4 +1,40 @@
 <?php
+/**
+ * Class Demagog
+ *
+ * Parsing data on-line from demagog database
+ * TODO should be rewritten to write to separate default database on any changes
+ *
+ * One need to create custom fields that will result in following db entries:
+ * politic_statement_0_source-urls_1_statement-fc-source
+ *
+ * Wzmianki o wypowiedzi
+ * source-urls
+ * Repeater
+ * Wpisz adresy URL, które zawierają wzmiankę. Dzięki temu wyświetlą się odbiorcom wtyczki.
+ *
+ *
+ * Wzmianki
+ * statement-fc-source
+ * Text
+ * --
+ *
+ * + na poziomie Wypowiedzi należy dodać:
+ *
+ * Pierwsza wzmianka
+ * main-fc-source (oryginalne źródło wzmianki)
+ * URL do wzmianki, która zainicjowała tę analizę.  Może być wypełnione automatycznie za pomocą /wp-admin/tools.php?page=extract_sources
+ *
+ * Pomiń wykrywanie wzmianek
+ * main-fc-source-skip
+ *
+ *
+ *
+ * While cleaning:
+ * - politic_statement_4_source-urls
+ * - main-fc-source
+ */
+
 
 class Demagog implements iSite {
     public function get_statement_query() {
@@ -10,7 +46,7 @@ class Demagog implements iSite {
 
     public function get_statement($statement_id) {
         if (!preg_match('/^(\d+)_(\d+)$/', $statement_id, $post_and_statement_id)) {
-            throw new Exception("not found"); // TODO
+            return new WP_Error( 'not_found', 'Statement doesn\'t exist', array( 'status' => 404 ) );
         }
 
         global $wpdb;
@@ -113,6 +149,7 @@ class Demagog implements iSite {
         if ($source_url) {
           $escaped = esc_sql($source_url);
 
+          // wypowiedzi z ustawionymi pobocznymi wzmiankami
           $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where RIGHT(meta_key, 20) = "_statement-fc-source" ' .
             ' AND meta_value = "'. $escaped .'"';
 
@@ -124,16 +161,18 @@ class Demagog implements iSite {
               $statement_ids[$w->post_id . '_' . $meta_in_post[2]] = true;
           }
 
-          // get wypowiedzi with maain source set
+          // get wypowiedzi with main source set
           $sql = 'select post_id FROM '. $wpdb->prefix .'postmeta where meta_key = "main-fc-source" and meta_value = "'. $escaped .'"';
           $post_ids = $wpdb->get_col($sql);
 
-          $sql = 'select post_id, meta_value FROM '. $wpdb->prefix .'postmeta where meta_key = "politic_statement" and post_id IN ('. join(',', $post_ids) .')';
-          $wypowiedzi = $wpdb->get_results($sql);
+          if (!empty($post_ids)) {
+              $sql = 'select post_id, meta_value FROM ' . $wpdb->prefix . 'postmeta where meta_key = "politic_statement" and post_id IN (' . join(',', $post_ids) . ')';
+              $wypowiedzi = $wpdb->get_results($sql);
 
-          foreach($wypowiedzi as $w) {
-              for ($i = 0; $i < $w->meta_value; $i++) {
-                  $statement_ids[$w->post_id . '_' . $i] = true;
+              foreach ($wypowiedzi as $w) {
+                  for ($i = 0; $i < $w->meta_value; $i++) {
+                      $statement_ids[$w->post_id . '_' . $i] = true;
+                  }
               }
           }
 

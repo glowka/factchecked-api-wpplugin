@@ -3,7 +3,7 @@
 add_action( 'admin_menu', 'factchecked_api_menu' );
 
 function factchecked_api_menu() {
-	add_submenu_page( 'tools.php', 'Exract sources from posts', 'Extract sources', 'manage_options', 'extract_sources', 'extract_sources_page');
+	add_submenu_page( 'tools.php', 'Zbierz wzmianki z treści artykułów', 'Zbierz wzmianki', 'manage_options', 'extract_sources', 'extract_sources_page');
 }
 
 function extract_sources_page() {
@@ -46,7 +46,7 @@ function extract_sources_page() {
 
         } else {
           update_field('main-fc-source', $source_found);
-          echo "<span style='color:green;'>Wstawiam $source_found</span><br/>";
+          echo "<span style='color:green;'>Wstawiam glowny $source_found</span><br/>";
         }
       }
     } else if (!$skip_main_source) {
@@ -69,7 +69,7 @@ function extract_sources_page() {
 
       preg_match_all('/href="([^"]+)"/', $statement, $subsources);
       foreach($subsources[1] as $new) {
-        if ($existing[$new]) {
+        if (isset($existing[$new])) {
           if (!$meat_only)
             echo "<span style='color:blue;padding-left:15px;'>Pozostawiam $new</span><br/>";
 
@@ -86,9 +86,9 @@ function extract_sources_page() {
           ));
 
           update_or_insert_meta('politic_statement_'. $politic_statement_pos .'_source-urls_'. (count($subsources_data) - 1).'_statement-fc-source', $new);
-          update_or_insert_meta('_politic_statement_'. $politic_statement_pos .'_source-urls_'. (count($subsources_data) - 1).'_statement-fc-source', 'field_58ba9b59c8f0e');
+          update_or_insert_meta('_politic_statement_'. $politic_statement_pos .'_source-urls_'. (count($subsources_data) - 1).'_statement-fc-source', 'field_5bd33f462b004');
 
-          echo "<span style='color:green;padding-left:15px;'>Wstawiam $new</span><br/>";
+          echo "<span style='color:green;padding-left:15px;'>Wstawiam poboczny $new</span><br/>";
         }
       }
 
