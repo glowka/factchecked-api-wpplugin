@@ -103,17 +103,17 @@ function extract_sources_page() {
 
 function update_or_insert_meta($key, $value) {
   global $wpdb;
-  $c = $wpdb->get_col($wpdb->prepare('SELECT count(*) FROM wp_postmeta where post_id = %d and meta_key = %s', get_the_ID(), $key));
+  $c = $wpdb->get_col($wpdb->prepare('SELECT count(*) FROM '. $wpdb->prefix .'postmeta where post_id = %d and meta_key = %s', get_the_ID(), $key));
 
   if ($c[0]) {
-    $wpdb->update('wp_postmeta', array(
+    $wpdb->update($wpdb->prefix . 'postmeta', array(
              'meta_value' => $value
            ), array(
              'post_id' => get_the_ID(),
              'meta_key' => $key
            ));
   } else {
-    $wpdb->insert( 'wp_postmeta', array(
+    $wpdb->insert( $wpdb->prefix . 'postmeta', array(
       'post_id' => get_the_ID(),
       'meta_key' => $key,
       'meta_value' => $value
