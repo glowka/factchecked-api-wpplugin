@@ -17,4 +17,6 @@ class Statement
     public $explanation;
     public $factchecker_uri;
     public $sources;
+    public $timestamp_factcheck;
+    public $timestamp_statement;
 }

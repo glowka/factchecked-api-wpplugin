@@ -54,6 +54,7 @@ class Demagog implements iSite {
         $st = new Statement();
         $st->id = $statement_id;
         $st->factchecker_uri = get_site_url() . '?p=' . $post_and_statement_id[1];
+        $st->timestamp_factcheck = get_the_date('c', $post_and_statement_id[1]);
 
         $statement_inpost_str = (string) $post_and_statement_id[2];
 
@@ -70,7 +71,7 @@ class Demagog implements iSite {
         // get post metadata
         $sql = 'select meta_key, meta_value FROM '. $wpdb->prefix .'postmeta where ' .
         'post_id = ' . $post_and_statement_id[1] .
-        ' AND LEFT(meta_key, '. (19 + strlen($statement_inpost_str)) .') = "politic_statement_'. $statement_inpost_str .'_";';
+        ' AND (LEFT(meta_key, '. (19 + strlen($statement_inpost_str)) .') = "politic_statement_'. $statement_inpost_str .'_" OR meta_key = "date_statement" );';
 
         $data = $wpdb->get_results($sql);
         foreach ($data as $d) {
@@ -96,6 +97,8 @@ class Demagog implements iSite {
 
             } else if (endsWith($d->meta_key, 'fc-source')) {
                 $sources[$d->meta_value] = 1;
+            } else if ($d->meta_key == 'date_statement') {
+                $st->timestamp_statement = substr_replace(substr_replace($d->meta_value, '-', 6, 0), '-', 4, 0);
             }
         }
 

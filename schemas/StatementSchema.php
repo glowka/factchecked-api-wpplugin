@@ -28,6 +28,8 @@ class StatementSchema extends SchemaProvider
             'rating_img' => $statement->rating_img,
             'explanation'  => $statement->explanation,
             'factchecker_uri'  => $statement->factchecker_uri,
+            'timestamp_factcheck'  => $statement->timestamp_factcheck,
+            'timestamp_statement'  => $statement->timestamp_statement,
             'sources'  => $statement->sources,
         ];
     }
