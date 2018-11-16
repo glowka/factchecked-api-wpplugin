@@ -95,6 +95,13 @@ function extract_sources_page() {
       if ($subupdated) {
         update_or_insert_meta('politic_statement_'. $politic_statement_pos .'_source-urls', count($subsources_data));
       }
+
+      if (get_sub_field('statement_content_unmodified', false)) {
+        echo "<span style='color:blue;padding-left:15px;'>Wypowiedź nieredagowana istnieje, pomijam</span><br/>";
+      } else {
+        echo "<span style='color:green;padding-left:15px;'>Wstawiam nieredagowaną wypowiedź</span><br/>";
+        insert_meta('politic_statement_'. $politic_statement_pos .'_statement_content_unmodified', html_entity_decode(wp_strip_all_tags($statement)));
+      }
     }
 
     echo '</p>';
@@ -120,3 +127,13 @@ function update_or_insert_meta($key, $value) {
      ));
   }
 }
+
+function insert_meta($key, $value) {
+  global $wpdb;
+  $wpdb->insert( $wpdb->prefix . 'postmeta', array(
+    'post_id' => get_the_ID(),
+    'meta_key' => $key,
+    'meta_value' => $value
+   ));
+}
+
