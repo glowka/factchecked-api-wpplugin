@@ -75,8 +75,8 @@ class Demagog implements iSite {
 
         $data = $wpdb->get_results($sql);
         foreach ($data as $d) {
-            if (endsWith($d->meta_key, 'statement_content')) {
-                $st->text = wp_strip_all_tags($d->meta_value);
+            if (endsWith($d->meta_key, 'statement_content_unmodified')) {
+                $st->text = $d->meta_value;
 
                 // delete [ ] brackets containing context provided by editorial team
                 $st->text = trim(preg_replace('/\s*\[[^\]]+\](\s*)/', '$1', $st->text));
@@ -188,7 +188,7 @@ class Demagog implements iSite {
 
         } else {
           // all statements
-          $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where LEFT(meta_key, 18) = "politic_statement_" and RIGHT(meta_key, 18) = "_statement_content" LIMIT 10';
+          $sql = 'select distinct post_id, LEFT(meta_key, 24) as meta_key FROM '. $wpdb->prefix .'postmeta where LEFT(meta_key, 18) = "politic_statement_" and RIGHT(meta_key, 18) = "_statement_content_unmodified" LIMIT 10';
 
           // TODO range of $sql = 'select distinct post_id, meta_value as statement_count FROM '. $wpdb->prefix .'postmeta where meta_key = "politic_statement" LIMIT 10';
           // but it's going to be hard to paginate
